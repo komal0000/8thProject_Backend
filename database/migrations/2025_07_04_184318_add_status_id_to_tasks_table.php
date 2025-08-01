@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->unsignedBigInteger('status_id')->nullable()->after('assigned_to');
-            $table->foreign('status_id')->references('id')->on('status')->onDelete('set null');
+            if (!Schema::hasColumn('tasks', 'status_id')) {
+                $table->unsignedBigInteger('status_id')->nullable()->after('assigned_to');
+                $table->foreign('status_id')->references('id')->on('status')->onDelete('set null');
+            }
         });
     }
 
@@ -23,8 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dropForeign(['status_id']);
-            $table->dropColumn('status_id');
+            if (Schema::hasColumn('tasks', 'status_id')) {
+                $table->dropForeign(['status_id']);
+                $table->dropColumn('status_id');
+            }
         });
     }
 };
